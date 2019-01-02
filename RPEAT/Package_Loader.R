@@ -1,0 +1,16 @@
+options(shiny.maxRequestSize=4975*1024^2) 
+options(rsconnect.max.bundle.size=5000*1024^2)
+
+rm(list=setdiff(ls(), c()))
+cat("\014")
+
+library(shiny)
+library(magrittr)
+library(stringr)
+library(tibble)
+library(dplyr)
+library(XML)
+library(shinyjs)
+library(filesstrings)
+library(elastic)
+library(DT)

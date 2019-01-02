@@ -1,0 +1,15 @@
+RPEAT is able to automatically generate Dublin Core metadata, that can be included at the user's discretion.
+
+The following outlines the meaning behind each:
+
+Identifier: Every record in RecordPoint consists of multiple record versions, or binaries. Every binary has a unique identifier assigned to it. RPEAT selects only the most recent of these binaries and extracts the identifier from the binary's title. When exported, the binary's title was originally [title]([identifier]).[extension]. For example exported binary "Auckland Tourism Website Text(c7c46335ab99453ca18aeff921def6aa).msg" has an identifier of c7c46335ab99453ca18aeff921def6aa.
+
+Title: The record's title.
+
+Source: Always follows the convention "Created in [Record Source System] and capture by RecordPoint version [version number]". "Record source system" here refers to the system that RecordPoint originally captured the record from.
+
+Creator: The record's creator, a person.
+
+Date: Follows the convention "Created: [creation date] Modified: [modified date]"
+
+Provenance: Follows the convention "Repackaged for Archivematica by [user of RPEAT] on [date RPEAT converted the export]"

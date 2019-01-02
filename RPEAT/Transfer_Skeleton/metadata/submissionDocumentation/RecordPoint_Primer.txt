@@ -1,0 +1,25 @@
+RecordPoint is/was a Digital Records Management System.
+
+To gain an understanding of what a Digital Records Management System is, please read the standard "ISO 16175-2:2011: Information and Documentation - Principles and functional requirements for records in electronic office environments - Part 2: Guidelines and functional requirements for digital records management systems", published by the International Organisation for Standardisation.
+
+RecordPoint allows for the export of records and their metadata. The RPEAT software has repackaged this export into a form suitable for Transfer into Archivematica.
+
+Each record in RecordPoint has one or more binaries. Each binary is a different version of the record. Only the latest version of each record has been included in the transfer package.
+
+RecordPoint can manage records that originated from a number of systems. To see the system that each record originated from, refer to the metadata element 'Record Source System'.
+
+Other important metadata is specified below. This list is not comprehensive and the RPEAT user may have chosen not to retain these elements.
+
+Record Number: A unique identifier applied to each record
+
+Record Site Name/Record Web Name/Record List Name: Hierarchical information relating to SharePoint. Records are arranged by Site/Web/List.
+
+Record URL/Record Path: Indicates the 'location' of a record within the source system. Records sharing the same Path were in the same 'location' within RecordPoint.
+
+Disposal Class ID: A unique identifier assigned to a 'Transaction' (as defined in ISO 16175-2:2011)
+
+Container: A unique identifier for the record's Aggregation (as defined in ISO 16175-2:2012). There are a number of metadata elements related to the container. Related records within the same RecordPoint installation will share the same Container ID.
+
+Rule Priority/Rule GUID/Rule Outcome Title: Any metadata begiing with 'Rule' related to RecordPoint's Rules Engine.
+
+RecordPoint_ActiveSiteSecurity: Contains information relating to who, at the time, had RecordPoint access permissions.
