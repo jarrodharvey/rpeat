@@ -35,13 +35,24 @@ shinyUI(fluidPage(
            
            p("The application will only work with exports of Electronic Records, not with Electronic Files."),
            
-           p("To begin, upload a zip file containing the RecordPoint export."),
-         
            checkboxInput("preventDuplication", "Check this box if you would like to block conversion of records that are already in AIPs.", value = TRUE, width = NULL),
           
-           fileInput("zipUpload", "Upload zipped RecordPoint export",
+         if(export_dir_mounted) {
+           fluidRow(
+            selectInput(
+               "selectExport",
+               "Select a RecordPoint Export from the list.",
+               list.dirs(exports_directory, recursive = FALSE, full.names = FALSE)
+              ),
+             actionButton("startButton", "Start!")
+           )
+           
+         } else {
+            fileInput("zipUpload", "Upload zipped RecordPoint export",
                      multiple = FALSE,
-                     accept = ".zip"),
+                     accept = ".zip")
+         },
+          
           tags$p(),
          
            htmlOutput("fileList"),

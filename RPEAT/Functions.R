@@ -28,6 +28,10 @@ buildTransferPackage <- function(metadataCSV) {
   removeUniqueIDsFromFilenames(packageLocation)
   moveTransferPackage(packageName, packageLocation)
 }
+countCharOccurrences <- function(char, s) {
+    s2 <- gsub(char,"",s)
+    return (nchar(s) - nchar(s2))
+}
 filterOutEmptyColumn <- function(colName, df) {
   # Iterate through columns to determine which ones are completely empty.
   # They can then get filtered out for the user's convenience.

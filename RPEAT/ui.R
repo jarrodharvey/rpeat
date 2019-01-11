@@ -1,6 +1,3 @@
-source("Package_Loader.R")
-source("Functions.R")
-
 shinyUI(fluidPage(theme = "rpeat_custom.css",
                   
                   shinyjs::useShinyjs(),

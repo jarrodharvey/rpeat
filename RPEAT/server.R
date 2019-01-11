@@ -101,38 +101,73 @@ shinyServer(function(input, output, session) {
     shinyjs::show("selectMetadata")
   })
   
-  observeEvent(input$zipUpload, {
-    if (dir.exists(paste0("/home/RecordPoint_Transfers/", str_replace(input$zipUpload$name, ".zip", ""), "_RPEAT"))) {
+  observeEvent(c(input$zipUpload, input$startButton), {
+    export_title <- if (export_dir_mounted) { 
+      # For some reason input$startButton fires initially without being clicked,
+      # so need to check that it has NOT been clicked
+      if (isolate(input$startButton) == 0) {
+        return()
+      }
+      isolate(input$selectExport) 
+    } else {
+      isolate(input$zipUpload$name)
+    }
+    if (dir.exists(paste0("/home/RecordPoint_Transfers/", str_replace(export_title, ".zip", ""), "_RPEAT"))) {
       session$sendCustomMessage(type = 'testmessage',
                                 message = "You have already done this transfer!")
       return()
     }
-    # Upload a file called 'bypass.zip' to bypass extraction - useful for testing!
-    if (input$zipUpload$name != "bypass.zip") {
+    if (!export_dir_mounted) {
+     # Upload a file called 'bypass.zip' to bypass extraction - useful for testing!
+      if (export_title != "bypass.zip") {
+        if (file.exists("workingDir")) {
+          unlink("workingDir", recursive = TRUE, force = TRUE)
+        }
+        dir.create("workingDir")
+        zipContents <- unzip(input$zipUpload$datapath, list = TRUE)
+        zipFiles <- zipContents[zipContents$Length > 0,]$Name
+        zipDirs <- zipContents[zipContents$Length == 0,]$Name
+        exportName <- str_replace(input$zipUpload$name, ".zip", "")
+        withProgress(
+          lapply(zipFiles, function(zipFile) {
+            fileName <- sub(".*/", "", zipFile)
+            unzip(input$zipUpload$datapath, files = zipFile, exdir = "workingDir")
+            incProgress(1, detail = paste("Adding", fileName))
+          }
+          ), min = 0, max = length(zipFiles), message = "Extracting files to working directory...")
+      } else {
+        print(getwd())
+        dirsInWorking <- list.dirs("workingDir", FALSE, FALSE)
+        if (length(dirsInWorking) != 1) {
+          session$sendCustomMessage(type = 'testmessage',
+                                    message = "Make sure that there is exactly one folder in your working directory.")
+          return()
+        }
+        exportName <- dirsInWorking
+      } 
+    } else {
       if (file.exists("workingDir")) {
         unlink("workingDir", recursive = TRUE, force = TRUE)
       }
       dir.create("workingDir")
-      zipContents <- unzip(input$zipUpload$datapath, list = TRUE)
-      zipFiles <- zipContents[zipContents$Length > 0,]$Name
-      zipDirs <- zipContents[zipContents$Length == 0,]$Name
-      exportName <- str_replace(input$zipUpload$name, ".zip", "")
-      withProgress(
-        lapply(zipFiles, function(zipFile) {
-          fileName <- sub(".*/", "", zipFile)
-          unzip(input$zipUpload$datapath, files = zipFile, exdir = "workingDir")
-          incProgress(1, detail = paste("Adding", fileName))
-        }
-        ), min = 0, max = length(zipFiles), message = "Extracting files to working directory...")
-    } else {
-      print(getwd())
-      dirsInWorking <- list.dirs("workingDir", FALSE, FALSE)
-      if (length(dirsInWorking) != 1) {
-        session$sendCustomMessage(type = 'testmessage',
-                                  message = "Make sure that there is exactly one folder in your working directory.")
-        return()
-      }
-      exportName <- dirsInWorking
+      showNotification(
+        "Now copying the export folder. This may take some time depending on the size of the folder, so please be patient...",
+        duration = NULL,
+        type = "message",
+        closeButton = FALSE,
+        id = "exportCopyNotification"
+      )
+      shinyjs::disable("startButton")
+      file.copy(
+        paste0(exports_directory, "/", export_title),
+        "./workingDir",
+        recursive = TRUE,
+        copy.mode = FALSE,
+        copy.date = TRUE
+      )
+      removeNotification(id = "exportCopyNotification")
+      shinyjs::enable("startButton")
+      exportName <- export_title
     }
     assign("exportLoc", paste0("./workingDir/", exportName), env = .GlobalEnv)
     # The directory in Position 1 will be the export location itself, so remove it.
@@ -168,11 +203,12 @@ shinyServer(function(input, output, session) {
         alreadyPreservedRecords <- lapply(aipData, getPreservedRecords) %>% unlist(.)
         filesAndRecordNumbers$identifier <- sub("^.*\\((.*)\\)\\..*$", "\\1", filesAndRecordNumbers$filename)
         rejectedRecords <- intersect(filesAndRecordNumbers$identifier, alreadyPreservedRecords) 
-        rejectedRecordText <- filesAndRecordNumbers[filesAndRecordNumbers$identifier %in% rejectedRecords,] %>%
+        rejectedRecords <-  filesAndRecordNumbers[filesAndRecordNumbers$identifier %in% rejectedRecords,] %>%
           .$filename %>%
           sub("\\([a-z0-9]{32}\\)\\.", ".", .) %>%
-          unique(.) %>%
-          paste(., collapse = ", ") 
+          unique(.) 
+
+        rejectedRecordText <- paste(rejectedRecords, collapse = ", ") 
         filesAndRecordNumbers <- filesAndRecordNumbers[!filesAndRecordNumbers$identifier %in% rejectedRecords,] %>%
           assign("filesAndRecordNumbers", ., envir = .GlobalEnv)
       } else {
@@ -182,10 +218,14 @@ shinyServer(function(input, output, session) {
         unique(.) %>%
         setdiff(., rejectedRecords) %>%
         paste(., collapse = ", ") 
+      acceptedRecordsCount <- countCharOccurrences(",", acceptedRecords)
       output$fileList <- renderUI({ 
-        line1 <- paste0("<b>The following records will be repackaged according to Archivematica Transfer requirements:</b> ", acceptedRecords, ".")
+	if (acceptedRecordsCount > 0) {
+	   line1 <- paste0("<b>The following records will be repackaged according to Archivematica Transfer requirements:</b> ", acceptedRecords, ".")
+        } else {
+	   line1 <- "<b>All records submitted are already in Archivematica's AIPs!</b>"
+	}
         if (length(rejectedRecords) > 0) {
-          print(rejectedRecordText)
           line2 <- paste0("<font color='red'><b>The following records were found to already exist within AIPs and will not be repackaged:</b> ", rejectedRecordText, ".</font>")
         } else {
           if (!isolate(input$preventDuplication)) {
@@ -199,7 +239,9 @@ shinyServer(function(input, output, session) {
         line3 <- "Okay to continue?"
         HTML(paste(line1, line2, '<br/>', sep = '<br/><br/>'))
       })
-      shinyjs::show("viewMetadataList")
+	if (acceptedRecordsCount > 0) {
+         shinyjs::show("viewMetadataList")
+	}
       
     } else {
       session$sendCustomMessage(type = 'testmessage',

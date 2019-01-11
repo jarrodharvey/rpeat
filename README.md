@@ -184,3 +184,24 @@ If everything works well then you can run the command in the background instead:
 ```bash
 nohup java -jar shinyproxy-[version].jar &>/dev/null &
 ```
+
+### Optional: mount the RecordPoint exports folder in the server for a more automated workflow ###
+
+If you have the required permissions, you may wish to mount the RecordPoint exports folder directly on the archivematica server. RPEAT will look for /mnt/RecordPoint_Exports and if there are folders within will replace the zip upload button with a drop-down list containing all exports.
+
+To set this up, to to Management > Settings > General in RecordPoint to find out the export location.
+
+![](./Screenshots/Export_Location.PNG)
+
+Now that you know where they are, create the mount directory.
+
+```bash
+sudo mkdir /mnt/RecordPoint_Exports
+```
+
+Mount the RecordPoint exports folder.
+
+```bash
+sudo mount -o username=[username],password=[password] [recordpoint server]\[export location] /mnt/RecordPoint_Exports
+```
+
