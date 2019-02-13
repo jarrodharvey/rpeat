@@ -199,7 +199,7 @@ shinyServer(function(input, output, session) {
         # docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 	      # ShinyProxy's application.yml file should also have the container-network set as dockernet
         connect(es_host="192.168.0.1")
-        aipData <- Search(index = "aips", type = "aip", query = "*")$hits$hits
+        aipData <- Search(index = "aips", type = "aip", size = 10000)$hits$hits
         alreadyPreservedRecords <- lapply(aipData, getPreservedRecords) %>% unlist(.)
         filesAndRecordNumbers$identifier <- sub("^.*\\((.*)\\)\\..*$", "\\1", filesAndRecordNumbers$filename)
         rejectedRecords <- intersect(filesAndRecordNumbers$identifier, alreadyPreservedRecords) 
@@ -207,9 +207,9 @@ shinyServer(function(input, output, session) {
           .$filename %>%
           sub("\\([a-z0-9]{32}\\)\\.", ".", .) %>%
           unique(.) 
-
+        rejectedRecords_recordNumbers <- filesAndRecordNumbers[filesAndRecordNumbers$identifier %in% alreadyPreservedRecords,]$`Record Number`
         rejectedRecordText <- paste(rejectedRecords, collapse = ", ") 
-        filesAndRecordNumbers <- filesAndRecordNumbers[!filesAndRecordNumbers$identifier %in% rejectedRecords,] %>%
+        filesAndRecordNumbers <- filesAndRecordNumbers[!filesAndRecordNumbers$`Record Number` %in% rejectedRecords_recordNumbers,] %>%
           assign("filesAndRecordNumbers", ., envir = .GlobalEnv)
       } else {
         rejectedRecords <- c()

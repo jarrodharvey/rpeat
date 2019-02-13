@@ -40,29 +40,6 @@ proxy:
     container-network: dockernet
     access-groups: archivists
     container-volumes: [ "/home/RecordPoint_Transfers:/home/RecordPoint_Transfers", "/mnt/RecordPoint_Exports:/mnt/RecordPoint_Exports"] 
-    # The below container is included only to demonstrate the practice exam tool
-  - id: Practice-Exam
-    display-name: Practice Exam
-    description: A tool that allows an examiner to audit a practice exam
-    container-cmd: ["R", "-e", "shiny::runApp('/root/Practice_Exam_Tool')"]
-    container-image: practiceexam
-    access-groups: examiners
-  - id: upload_archival_scans_to_archivematica
-    display-name: Upload Archival Scans
-    description: Upload scans (digitisations) of collections from the RACS Archives to Archivematica
-    container-cmd: ["R", "-e", "shiny::runApp('/root/upload_archival_scans_to_archivematica')"]
-    container-image: digitisations_and_donations
-    access-groups: archivists
-    container-volumes: [ "/home/Archival_Transfers:/home/Archival_Transfers" ]
-    # container-volumes: [ "/opt/digitisations_and_donations/upload_archival_scans_to_archivematica/Inmagic_Dump:/root/digitisations_and_donations/upload_archival_scans_to_archivematica/Inmagic_Dump" ]
-  - id: upload_donations_to_archivematica
-    display-name: Upload Digital Donations
-    description: Upload digital donations (such as CVs) that have been made to RACS
-    container-cmd: ["R", "-e", "shiny::runApp('/root/upload_donations_to_archivematica')"]
-    container-image: digitisations_and_donations
-    access-groups: archivists
-    container-volumes: [ "/home/Digital_Donations:/home/Digital_Donations" ]
-
 
 logging:
   file:
