@@ -55,7 +55,8 @@ shinyServer(function(input, output, session) {
     
     mostRecentVersions <- filesAndRecordNumbers %>% 
       group_by(`Record Number`) %>%
-      filter(`Record Version` == max(`Record Version`))
+      filter(`Record Version` == max(`Record Version`)) %>%
+      .[!duplicated(.$`Record Number`, fromLast = TRUE),]
     
     assign("mostRecentVersions", mostRecentVersions, envir = .GlobalEnv)
     
