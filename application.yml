@@ -10,18 +10,9 @@ proxy:
   admin-groups: archivists
   # Example: 'simple' authentication configuration
   users:
-  - name: elizabeth.milford
-    password: Welcome1
-    groups: archivists
   - name: jarrod.harvey
-    password: Welcome1
+    password: fur61
     groups: archivists
-  - name: bill.mezzetti
-    password: password
-    groups: examiners
-  - name: test.examiner
-    password: password
-    groups: examiners
  
   # Example: 'simple' authentication configuration
   docker:
