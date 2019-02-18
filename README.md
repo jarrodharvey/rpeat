@@ -202,6 +202,6 @@ sudo mkdir /mnt/RecordPoint_Exports
 Mount the RecordPoint exports folder.
 
 ```bash
-sudo mount -o username=[username],password=[password] [recordpoint server]\[export location] /mnt/RecordPoint_Exports
+sudo mount -t cifs -o username=[username],password=[password] [recordpoint server]\[export location] /mnt/RecordPoint_Exports
 ```
 
