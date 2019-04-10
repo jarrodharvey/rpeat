@@ -97,7 +97,7 @@ cd /opt
 Clone the repository.
 
 ```bash
-sudo git clone https://git.surgeons.org/DevOps/rpeat
+sudo git clone https://github.com/jarrodharvey/rpeat
 ```
 
 Assign the shiny-admins group to the newly created folder.
