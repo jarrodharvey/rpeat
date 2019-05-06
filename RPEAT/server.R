@@ -69,8 +69,14 @@ shinyServer(function(input, output, session) {
     
     buildTransferPackage(outputCSV)
     
+    message_text <- switch(Sys.info()[["sysname"]],
+                                "Windows" = paste0("The transfer package has been built successfully! It should now be available in ", path.expand("~"), "/RecordPoint_Exports"),
+                                "Linux" = "The transfer package has been built successfully! Sign in to Archivematica and it should now be available in /home/RecordPoint_Transfers.",
+                                stop("I don't recognise the system.")
+    )
+    
     session$sendCustomMessage(type = 'testmessage',
-                              message = "The transfer package has been built successfully! Sign in to Archivematica and it should now be available in /home/RecordPoint_Transfers.")
+                              message = message_text)
     
     session$reload()
   })
