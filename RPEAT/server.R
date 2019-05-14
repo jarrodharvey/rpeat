@@ -77,6 +77,8 @@ shinyServer(function(input, output, session) {
     
     session$sendCustomMessage(type = 'testmessage',
                               message = message_text)
+	  
+    setwd("../..")
     
     session$reload()
   })
